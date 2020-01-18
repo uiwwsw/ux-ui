@@ -21,26 +21,27 @@ const fs = require('fs');
 //         .pipe(dest('dist/css'))
 // }
 function cssMin() {
-    return src('src/scss/**/*.scss')
+    return src('src/**/*.scss')
         // .pipe(sourcemaps.init())
         .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
         // .pipe(sourcemaps.write())
-        .pipe(dest('src/css'))
+        .pipe(dest('src'))
         .pipe(browserSync.reload({ stream: true }));
 }
 function cssDev() {
-    return src('src/scss/**/*.scss')
+    return src('src/**/*.scss')
         .pipe(sourcemaps.init())
         .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
         .pipe(sourcemaps.write())
-        .pipe(dest('src/css'))
+        .pipe(dest('src'))
         .pipe(browserSync.reload({ stream: true }));
 }
+
 function js() {
-    return src('src/ts/**/*.ts')
+    return src('src/**/*.ts')
         .pipe(tap(function(file, t) {
-            const name = file.path.split('.')[0].split('/src/ts/')[1];
-            return t.through(cssToString, [file.path, name]);
+            const name = file.path.split('.')[0].split('/src/')[1];
+            return t.through(srcToString, [file.path, name]);
         }))
         .pipe(sourcemaps.init())
         .pipe(tsProject())
@@ -50,13 +51,14 @@ function js() {
         .pipe(concat(`js/${package.name}.js`))
         .pipe(sourcemaps.write())
         .pipe(dest('dist'))
+        .pipe(browserSync.reload({ stream: true }));
 }
 
 function jsMin() {
-    return src('src/ts/**/*.ts')
+    return src('src/**/*.ts')
         .pipe(tap(function(file, t) {
-            const name = file.path.split('.')[0].split('/src/ts/')[1];
-            return t.through(cssToString, [file.path, name]);
+            const name = file.path.split('.')[0].split('/src/')[1];
+            return t.through(srcToString, [file.path, name]);
         }))
         .pipe(sourcemaps.init())
         .pipe(tsProject())
@@ -69,20 +71,17 @@ function jsMin() {
         .pipe(dest('dist'))
         .pipe(browserSync.reload({ stream: true }));
 }
-function cssToString(file, name) {
-    // if(name === 'index') {
-    //     return src(file)
-    // } else {
-        const str = fs.readFileSync(`src/css/${name}.css`,'utf8',(err,data)=>data).replace(/\n/g, '');
-        return src(file)
-            .pipe(gap.appendText('var STYLE = `' + str + '`;'))
-    // }
+function srcToString(file, name) {
+    const css = fs.readFileSync(`src/${name}.css`,'utf8',(err,data)=>data).replace(/\n/g, '');
+    const html = fs.readFileSync(`src/${name}.html`,'utf8',(err,data)=>data).replace(/\n/g, '');
+    return src(file)
+        .pipe(gap.prependText('var STYLE = `' + css + '`;var HTML = `' + html + '`;'))
 }
 
 function watching() {
-    series(cssDev, js)
-    watch('src/ts/**/*.ts', js);
-    watch('src/scss/**/*.scss', cssDev);
+    cssDev();
+    js();
+    watch(['src/**/*.html','src/**/*.scss','src/**/*.ts'], series(cssDev, js));
 }
 
 function browser() {
