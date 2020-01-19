@@ -1,0 +1,51 @@
+@import "./variable";
+$theme: rgb(30, 153, 253);
+$black: #333;
+$radius: 3px;
+html {
+    font: {
+        size: 62.5%;
+    };
+}
+body {
+    font: {
+        family: $font-family;
+    }
+}
+button {
+    outline: none;
+}
+ux-tab {
+    > [slot="tab"] {
+        padding: 1rem;
+        color: $black;
+        font-size: 1.4rem;
+        border: {
+            top: .1rem solid $theme;
+            left: 0;
+            right: .1rem solid $theme;
+            bottom: .1rem solid $theme;
+        }
+        border-radius: 0;
+        transition: .2s background-color, .3s color, .3s font-weight;
+        background: none;
+
+        &:hover {
+            background: rgba($theme, .3);
+        }
+
+        &:first-child {
+            border-left: .1rem solid $theme;
+        }
+
+        &[ux] {
+            color: $theme;
+        }
+    }
+    >[slot="panel"] {
+        padding: 1rem;
+        font: {
+            size: 1.4rem;
+        } ;
+    }
+}

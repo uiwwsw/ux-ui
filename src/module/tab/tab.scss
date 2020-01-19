@@ -1,0 +1,25 @@
+:host {
+    display: block;
+
+    #tabsSlot {
+        display: flex;
+
+        &::slotted(*) {
+            flex: 1;
+            margin:0;
+            cursor: pointer;
+        }
+        &::slotted([ux]) {
+            font-weight: 700;
+        }
+    }
+
+    #panelsSlot {
+        &::slotted(*) {
+            display: none;
+        }
+        &::slotted([ux]) {
+            display: block;
+        }
+    }
+}    

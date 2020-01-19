@@ -7,18 +7,27 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- Load polyfills; note that "loader" will load these async -->
     <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js" defer></script>
-    <script type="module" src="../dist/js/ux-ui.js"></script>
+    <script type="module" src="../dist/module/select.js"></script>
+    <script type="module" src="../dist/module/tab.js"></script>
+    <link rel="stylesheet" href="../dist/theme/simple.css">
+    <!-- <link rel="stylesheet" href="../dist/theme/simple.css"> -->
     <title>Document</title>
 </head>
 <body>
     <ux-tab>
-        <button slot="title">Tab 1</button>
-        <button slot="title" selected>Tab 2</button>
-        <button slot="title">Tab 3</button>
-        <section>content panel 1</section>
-        <section>content panel 2</section>
-        <section>content panel 3</section>
+        <button slot="tab">Tab 1</button>
+        <button slot="tab" ux>Tab 2</button>
+        <button slot="tab">Tab 3</button>
+        <section slot="panel">content panel 1</section>
+        <section slot="panel">content panel 2</section>
+        <section slot="panel">content panel 3</section>
     </ux-tab>
+    <ux-select>
+        <button slot="option" ux>안녕</button>
+        <button slot="option">반가워</button>
+        <button slot="option">헬로</button>
+        <button slot="option">스마일</button>
+    </ux-select>
 </body>
 
 </html> 

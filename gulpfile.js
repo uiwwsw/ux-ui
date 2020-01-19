@@ -4,6 +4,7 @@ const gulp = require('gulp');
 const gap = require('gulp-append-prepend');
 const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
+const rename = require('gulp-rename');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
 const sass = require('gulp-sass');
@@ -11,54 +12,68 @@ const ts = require('gulp-typescript');
 const tsProject = ts.createProject('tsconfig.json');
 const browserSync = require('browser-sync').create();
 const tap = require('gulp-tap');
-const path = require('path');
 const fs = require('fs');
-// function css() {
-//     return src('src/scss/**/*.scss')
-//         .pipe(sourcemaps.init())
-//         .pipe(sass().on('error', sass.logError))
-//         .pipe(sourcemaps.write())
-//         .pipe(dest('dist/css'))
-// }
+const srcPath = 'src/';
+const themePath = `${srcPath}theme/`;
+const modulePath = `${srcPath}module/`;
+function css() {
+    return src(`${themePath}**/*.scss`)
+        .pipe(sourcemaps.init())
+        .pipe(sass().on('error', sass.logError))
+        .pipe(sourcemaps.write())
+        .pipe(dest('dist/theme'))
+        .pipe(browserSync.reload({ stream: true }));
+}
 function cssMin() {
-    return src('src/**/*.scss')
+    return src(`${modulePath}**/*.scss`)
         // .pipe(sourcemaps.init())
         .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
         // .pipe(sourcemaps.write())
-        .pipe(dest('src'))
+        .pipe(dest(modulePath))
         .pipe(browserSync.reload({ stream: true }));
 }
 function cssDev() {
-    return src('src/**/*.scss')
+    return src(`${modulePath}**/*.scss`)
         .pipe(sourcemaps.init())
         .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
         .pipe(sourcemaps.write())
-        .pipe(dest('src'))
+        .pipe(dest(modulePath))
         .pipe(browserSync.reload({ stream: true }));
 }
 
 function js() {
-    return src('src/**/*.ts')
+    return src(`${modulePath}**/*.ts`)
         .pipe(tap(function(file, t) {
-            const name = file.path.split('.')[0].split('/src/')[1];
-            return t.through(srcToString, [file.path, name]);
+            const str = file.path.split('.')[0].split(`/${modulePath}`)[1];
+            let path = str.split('/'),
+            name = path.pop();
+            path = path.join('/');
+            return t.through(srcToString, [file.path, path, name]);
         }))
         .pipe(sourcemaps.init())
         .pipe(tsProject())
         .pipe(babel({
             presets: ['@babel/env']
         }))
-        .pipe(concat(`js/${package.name}.js`))
+        // .pipe(concat(`${package.name}.js`))
         .pipe(sourcemaps.write())
-        .pipe(dest('dist'))
+        .pipe(rename(function (path) {
+            path.basename = path.dirname;
+            path.dirname = '';
+            return path
+          }))
+        .pipe(dest('dist/module'))
         .pipe(browserSync.reload({ stream: true }));
 }
 
 function jsMin() {
-    return src('src/**/*.ts')
+    return src(`${modulePath}**/*.ts`)
         .pipe(tap(function(file, t) {
-            const name = file.path.split('.')[0].split('/src/')[1];
-            return t.through(srcToString, [file.path, name]);
+            const str = file.path.split('.')[0].split(`/${modulePath}`)[1];
+            let path = str.split('/'),
+            name = path.pop();
+            path = path.join('/');
+            return t.through(srcToString, [file.path, path, name]);
         }))
         .pipe(sourcemaps.init())
         .pipe(tsProject())
@@ -66,22 +81,28 @@ function jsMin() {
             presets: ['@babel/env']
         }))
         .pipe(uglify())
-        .pipe(concat(`js/${package.name}.min.js`))
+        // .pipe(concat(`${package.name}.min.js`))
         .pipe(sourcemaps.write())
-        .pipe(dest('dist'))
+        .pipe(rename(function (path) {
+            path.basename = path.dirname;
+            path.dirname = '';
+            return path
+          }))
+        .pipe(dest('dist/module'))
         .pipe(browserSync.reload({ stream: true }));
 }
-function srcToString(file, name) {
-    const css = fs.readFileSync(`src/${name}.css`,'utf8',(err,data)=>data).replace(/\n/g, '');
-    const html = fs.readFileSync(`src/${name}.html`,'utf8',(err,data)=>data).replace(/\n/g, '');
+function srcToString(file, path, name) {
+    const css = fs.readFileSync(`${modulePath}${path}/${name}.css`,'utf8',(err,data)=>data).replace(/\n/g, '');
+    const html = fs.readFileSync(`${modulePath}${path}/${name}.html`,'utf8',(err,data)=>data).replace(/\n/g, '');
     return src(file)
+        // .pipe(gap.prependText('var ' + name + 'STYLE = `' + css + '`;var ' + name + 'HTML = `' + html + '`;'))
         .pipe(gap.prependText('var STYLE = `' + css + '`;var HTML = `' + html + '`;'))
 }
 
 function watching() {
-    cssDev();
-    js();
-    watch(['src/**/*.html','src/**/*.scss','src/**/*.ts'], series(cssDev, js));
+    (series(cssDev,css,js)());
+    watch([`${modulePath}**/*.html`,`${modulePath}**/*.scss`,`${modulePath}**/*.ts`], series(cssDev, js));
+    watch(`${themePath}**/*.scss`, css);
 }
 
 function browser() {
@@ -89,4 +110,4 @@ function browser() {
 }
 
 exports.watch = parallel(watching, browser);
-exports.default = series(cssMin, js, jsMin);
+exports.default = series(css, cssMin, js, jsMin);
