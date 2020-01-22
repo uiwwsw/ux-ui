@@ -22,11 +22,17 @@ customElements.define('ux-tab', class extends HTMLElement {
     });
   }
   action(index: string) {
-    this.tabs.map((el: any) => el.removeAttribute('ux'));
-    this.panels.map((el: any) => el.removeAttribute('ux'));
-    const tab = this.tabs[Number(index)] as HTMLElement,
+    const exTab = this.tabs.find((el: any) => {
+      const hl = el as HTMLElement;
+      return hl.getAttribute('ux') !== null
+    }) as HTMLElement, exPanel = this.panels.find((el: any) => {
+      const hl = el as HTMLElement;
+      return hl.getAttribute('ux') !== null
+    }) as HTMLElement, tab = this.tabs[Number(index)] as HTMLElement,
     panel = this.panels[Number(index)] as HTMLElement;
+    exTab.removeAttribute('ux');
     tab.setAttribute('ux', "");
+    exPanel.removeAttribute('ux');
     panel.setAttribute('ux', "");
   }
 
@@ -34,6 +40,7 @@ customElements.define('ux-tab', class extends HTMLElement {
     event.stopPropagation();
     const target = event.target as HTMLElement,
       index = target.dataset.index;
+
     if (target.getAttribute('slot') === 'tab' && target.getAttribute('ux') === null) {
       this.action(index!);
     }

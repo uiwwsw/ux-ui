@@ -1,3 +1,29 @@
 :host {
-    color: red;
+    display: block;
+    #viewSlot {
+        display: block;
+        height: 30px;
+        &[data-img] {
+            &::before {
+                content: attr(data-img);
+            }
+        }
+        &[data-desc] {
+            &::before {
+                content: attr(data-desc);
+            }
+        }
+        &::after {
+            content: attr(data-value);
+        }
+    }
+    #optionsSlot {
+        display: none;
+        &::slotted(*) {
+            color: blue;
+        }
+        &.ux {
+            display: block;
+        }
+    }
 }
