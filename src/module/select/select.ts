@@ -32,19 +32,21 @@ customElements.define('ux-select', class extends HTMLElement {
   }
   action(index: string) {
     const el = this.options[Number(index)] as HTMLElement,
-    value = el.innerText,
-    img = el.dataset.img,
-    desc = el.dataset.desc,
+    value = el.dataset.value,
+    label = el.dataset.label || el.innerText,
     slot = this.viewSlot as HTMLElement;
     const ex = this.options.find((el:Node)=>{
         const hl = el as HTMLElement;
         return hl.getAttribute('ux') !== null;
     }) as HTMLElement;
-    ex.removeAttribute('ux');
-    el.setAttribute('ux', '');
-    (value)&&(slot.dataset.value = value);
-    (img)&&(slot.dataset.img = img);
-    (desc)&&(slot.dataset.desc = desc);
+    (ex)&&(ex.removeAttribute('ux'));
+    if(index === '') {
+        slot.dataset.label = '선택해주세요';
+    }else {
+        el.setAttribute('ux', '');
+        this.dataset.value = value;
+        slot.dataset.label = label;
+    }
   }
   clickHandler(event: MouseEvent): void {
     event.stopPropagation();
@@ -53,9 +55,9 @@ customElements.define('ux-select', class extends HTMLElement {
     if (target.getAttribute('slot') === 'option' && target.getAttribute('ux') === null) {
       this.action(index!);
     }
-    if(target.id === 'viewSlot') {
+    // if(target.id === 'viewSlot') {
     this.toggle();
-    }
+    // }
   }
   connectedCallback() {
     let index = '';
