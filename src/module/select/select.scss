@@ -1,7 +1,6 @@
 :host {
     position: relative;
     display: inline-block;
-    color: #ddd;
     border-color: #000;
     #viewSlot {
         position: relative;
@@ -16,9 +15,24 @@
         border: {
             width: 1px;
             style: solid;
-            color: inherit
+            color: inherit;
+            top: {
+                left-radius: inherit;
+                right-radius: inherit;
+            }
+            bottom: {
+                left-radius: inherit;
+                right-radius: inherit;
+            }
         };
+
+        &[data-value] {
+            &::before {
+                color: inherit;
+            }
+        }
         &::before {
+            color: #ddd;
             content: attr(data-label);
         }
 
@@ -48,6 +62,12 @@
         }
 
         &.ux {
+            border: {
+                bottom: {
+                    left-radius: 0;
+                    right-radius: 0;
+                }
+            };
             &::after {
                 border: {
                     top: {
@@ -71,7 +91,11 @@
         border: {
             width: 1px;
             style: solid;
-            color:inherit
+            color:inherit;
+            bottom: {
+                left-radius: inherit;
+                right-radius: inherit;
+            }
         }
         &::slotted(*) {
             display: block;

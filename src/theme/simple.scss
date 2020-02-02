@@ -1,7 +1,43 @@
 @import "./variable";
-$theme: rgb(30, 153, 253);
+$primary: rgb(30, 153, 253);
 $black: #333;
+$white: #f9f9f9;
 $radius: 3px;
+$normal-height: 43px;
+$border-width: .1rem;
+@function font-size($index: 1) {
+    @if($index == 1) {
+        @return 1.2rem;
+    }
+    @if($index == 2) {
+        @return 1.4rem;
+    }
+}
+%focus {
+    position: relative;
+    transition: .3s color, .3s font-weight;
+    &::before {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        transition: .2s background-color;
+        content: '';
+    }
+    &:focus ,
+    &:hover {
+        font-weight: 700;
+
+        &::before {
+            background: rgba($primary, .3);
+        }
+    }
+
+    &[ux] {
+        color: $primary;
+    }
+}
 html {
     font: {
         size: 62.5%;
@@ -17,29 +53,31 @@ button {
 }
 ux-tab {
     > [slot="tab"] {
-        padding: 1rem;
+        @extend %focus;
+        height: $normal-height;
+        padding: 0 1rem;
         color: $black;
-        font-size: 1.4rem;
+        font-size: font-size(2);
         border: {
-            top: .1rem solid $theme;
+            top: $border-width solid $primary;
             left: 0;
-            right: .1rem solid $theme;
-            bottom: .1rem solid $theme;
+            right: $border-width solid $primary;
+            bottom: $border-width solid $primary;
         }
-        border-radius: 0;
-        transition: .2s background-color, .3s color, .3s font-weight;
         background: none;
 
-        &:hover {
-            background: rgba($theme, .3);
-        }
-
         &:first-child {
-            border-left: .1rem solid $theme;
+            border: {
+                top-left-radius:$radius ;
+                bottom-left-radius:$radius ;
+                left: $border-width solid $primary;
+            }
         }
-
-        &[ux] {
-            color: $theme;
+        &:last-of-type {
+            border: {
+                top-right-radius:$radius ;
+                bottom-right-radius:$radius ;
+            }
         }
     }
     >[slot="panel"] {
@@ -48,4 +86,18 @@ ux-tab {
             size: 1.4rem;
         } ;
     }
+}
+ux-select {
+    width: 15rem;
+    height: $normal-height;
+    border-radius: $radius;
+    color: $primary;
+    font-size: font-size();
+    border-color: $primary;
+    > * {
+        @extend %focus;
+    }
+    [slot="option"] {
+        height: $normal-height;
+    } 
 }
